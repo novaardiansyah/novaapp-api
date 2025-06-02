@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import pool from '@/db';
-import { notesRouter } from './routes';
+import { AuthRouter, notesRouter } from './routes';
 
 dotenv.config();
 
@@ -12,6 +12,7 @@ app.get('/', async (req: Request, res: Response) => {
   res.status(404).json({ error: 'Not Found' });
 })
 
+app.use('/api/auth', AuthRouter);
 app.use('/api/notes', notesRouter);
 
 app.get('/api', async (req: Request, res: Response) => {

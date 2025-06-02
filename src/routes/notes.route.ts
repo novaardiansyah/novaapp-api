@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { NotesController } from '@/controllers/notes.controller';
+import { NoteController } from '@/controllers/note.controller';
 
 const router = Router();
 
-router.get('/', NotesController.index);
+router.get('/', NoteController.index);
 
 export default router
