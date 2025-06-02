@@ -1,10 +1,26 @@
 import express, { Request, Response } from 'express';
+import dotenv from 'dotenv';
+import pool from '@/db';
+import { notesRouter } from './routes';
+
+dotenv.config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello from Express + TypeScript!');
+app.get('/', async (req: Request, res: Response) => {
+  res.status(404).json({ error: 'Not Found' });
+})
+
+app.use('/api/notes', notesRouter);
+
+app.get('/api', async (req: Request, res: Response) => {
+  try {
+    const [rows] = await pool.query('SELECT NOW() as now');
+    res.json({ message: 'Hello from Express + TypeScript!', dbTime: rows });
+  } catch (error) {
+    res.status(500).json({ error: 'Database error', details: error });
+  }
 });
 
 app.listen(port, () => {
