@@ -11,7 +11,7 @@ export interface JwtPayload {
   exp: number;
 }
 
-export const authMiddleware: Handler = (req, res, next) => {
+export const auth: Handler = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     res.status(401).json({ message: 'Missing or invalid token' });
