@@ -38,4 +38,4 @@ jobs:
           script: |
             export PATH=$PATH:$(npm bin -g)
             cd ${{ secrets.SERVER_PATH }}
-            pm2 start dist/index.js --name novaapp_api || pm2 restart novaapp_api
+            /root/.nvm/versions/node/v21.5.0/bin/pm2 start dist/index.js --name novaapp_api || /root/.nvm/versions/node/v21.5.0/bin/pm2 restart novaapp_api
