@@ -14,8 +14,9 @@ export const AuthController = {
 
   login: (async(req: Request, res: Response) => {
     const { email, password } = req.body || {}
-
+    
     const user = await UsersModel.findByEmail(email)
+    
     if (!user) return res.status(401).json({ message: 'Invalid credentials' })
 
     const valid = await bcrypt.compare(password, user.password)
@@ -47,9 +48,9 @@ export const AuthController = {
     })
     
     res.json({
-      token,
-      refreshToken: refreshToken.plain,
-      expiresIn,
+      access_token: token,
+      refresh_token: refreshToken.plain,
+      expires_at: expiresIn,
     })
   }) as Handler,
 
@@ -83,11 +84,13 @@ export const AuthController = {
   }) as Handler,
 
   me: (async (req: Request, res: Response) => {
-    res.json({
-      id: (req as any).user.userId,
-      email: (req as any).user.email,
-      name: (req as any).user.name
-    });
+    const userId = (req as any).user.userId;
+    const user = await UsersModel.findById(userId);
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    const { password, ...rest } = user;
+    res.json(rest);
   }) as Handler
 }
 

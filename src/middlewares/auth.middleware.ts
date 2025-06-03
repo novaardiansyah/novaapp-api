@@ -27,9 +27,10 @@ export const auth: Handler = async (req, res, next) => {
     (req as any).user = payload
 
     const { userId } = payload
-    const userToken = await UserTokensModel.findByUserId(userId)
+    
+    const userToken = await UserTokensModel.findByToken(token)
 
-    if (!userToken || userToken.token !== token) {
+    if (!userToken || userToken.user_id !== userId) {
       throw new Error('Token does not match user token')
     }
 

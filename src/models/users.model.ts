@@ -5,12 +5,12 @@ export interface User {
   name: string;
   email: string;
   email_verified_at?: Date | null;
-  password: string;
+  password: string ;
   created_at?: Date;
   updated_at?: Date;
 }
 
-const selectOnly = ['a.id', 'a.name', 'a.email', 'a.email_verified_at', 'a.created_at', 'a.updated_at'] as const;
+const selectOnly = ['a.id', 'a.name', 'a.email', 'a.password', 'a.email_verified_at', 'a.created_at', 'a.updated_at'] as const;
 
 export class UsersModel {
   static async findByEmail(email: string): Promise<User | null> {
