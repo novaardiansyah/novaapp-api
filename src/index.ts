@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
-import pool from '@/db';
+import poolPromise from '@/db';
 import { AuthRouter, notesRouter } from './routes';
 
 dotenv.config();
@@ -20,6 +20,7 @@ app.use('/api/notes', notesRouter);
 
 app.get('/api', async (req: Request, res: Response) => {
   try {
+    const pool = await poolPromise()
     const [rows] = await pool.query('SELECT NOW() as now');
     res.json({ message: 'Hello from Express + TypeScript!', dbTime: rows });
   } catch (error) {

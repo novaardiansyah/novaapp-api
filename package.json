@@ -18,14 +18,18 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "luxon": "^3.6.1",
     "mysql2": "^3.14.1",
+    "tunnel-ssh": "^5.2.0",
     "zod": "^3.25.48"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/luxon": "^3.6.2",
     "@types/node": "^22.15.29",
+    "@types/tunnel-ssh": "^5.0.4",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
