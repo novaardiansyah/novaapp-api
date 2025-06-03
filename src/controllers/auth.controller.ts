@@ -1,8 +1,8 @@
 import { Request, Response, Handler } from 'express'
-import { UsersModel } from '@/models/users.model'
+import { UsersModel, UserTokensModel } from '@/models'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { getTimes } from '@/helpers';
+import { generateRefreshToken, getTimes } from '@/helpers';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret-key';
 
@@ -24,19 +24,35 @@ export const AuthController = {
     if (!valid) return res.status(401).json({ message: 'Invalid credentials' })
 
     const expiresIn = getTimes({ day: 1 })
-    res.json({
-      user: { id: user.id, email: user.email, name: user.name },
+    const refreshToken = await generateRefreshToken()
+
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, name: user.name },
+      JWT_SECRET,
+      { expiresIn: '1d' }
+    )
+
+    await UserTokensModel.create({
+      user_id: user.id,
+      token: token,
+      refresh_token: refreshToken.hash,
+      expires_at: new Date(expiresIn),
+      country: 'Indonesia',
+      state: 'DKI Jakarta',
+      city: 'Jakarta',
+      ip: req.ip,
+      device_model: req.headers['user-agent'] || 'Unknown',
+      os: 'Unknown',
+      os_version: 'Unknown',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      language: req.headers['accept-language']?.split(',')[0] || 'en-US',
     })
     
-    // const token = jwt.sign(
-    //   { userId: user.id, email: user.email, name: user.name },
-    //   JWT_SECRET,
-    //   { expiresIn: '1d' }
-    // )
-
-    
-
-    // res.json({ token })
+    res.json({
+      token,
+      refreshToken: refreshToken.plain,
+      expiresIn,
+    })
   }) as Handler,
 
   register: (async (req: Request, res: Response) => {
