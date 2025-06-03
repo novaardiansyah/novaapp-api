@@ -1,5 +1,5 @@
 import { Request, Response, Handler } from 'express'
-import { UsersModel, UserTokensModel } from '@/models'
+import { UsersModel, UserTokensModel, UserOtpsModel } from '@/models'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { generateRefreshToken, getTimes } from '@/helpers';
@@ -62,10 +62,19 @@ export const AuthController = {
     
     const existing = await UsersModel.findByEmail(email);
     if (existing) return res.status(409).json({ message: 'Email telah terdaftar sebelumnya.' })
-
+    
     const hash = await bcrypt.hash(password, 10);
     const userId = await UsersModel.create({ email, password: hash, name: newName });
     const user = await UsersModel.findById(userId);
+
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+    await UserOtpsModel.create({
+      user_id: userId,
+      type: 'register',
+      otp,
+      expired_at: new Date(getTimes({ minutes: 5 })),
+    })
 
     res.status(201).json(user);
   }) as Handler,

@@ -13,13 +13,7 @@ export interface User {
 const selectOnly = ['a.id', 'a.name', 'a.email', 'a.email_verified_at', 'a.created_at', 'a.updated_at'] as const;
 
 export class UsersModel {
-  static async all(): Promise<User[]> {
-    const [rows] = await pool.query("SELECT * FROM users ORDER BY id DESC");
-    return rows as User[];
-  }
-
   static async findByEmail(email: string): Promise<User | null> {
-    // const [rows] = await pool.query('SELECT * FROM users WHERE email = ? LIMIT 1', [email]);
     const [rows] = await pool.query(
       `SELECT ${selectOnly.join(', ')} FROM users AS a WHERE a.email = ? LIMIT 1`,
       [email]
