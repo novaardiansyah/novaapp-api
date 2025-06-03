@@ -10,7 +10,7 @@ While the API source code is open for learning and collaboration, please note th
 
 ## Electrifying Tech Stack!⚡
 
-- [Express.JS]('https://expressjs.com/)
+- [Express.JS](https://expressjs.com/)
 - [Typescript](https://www.typescriptlang.org/)
 
 ## Licensing Groove🕺
