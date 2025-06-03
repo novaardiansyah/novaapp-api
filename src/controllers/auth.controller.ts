@@ -3,11 +3,12 @@ import { UsersModel, UserTokensModel, UserOtpsModel } from '@/models'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { generateRefreshToken, getTimes } from '@/helpers';
+import axios from 'axios';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret-key';
 
 export const AuthController = {
-  async index(req: Request, res: Response) {
+  async index(req: Request, res: Response) {  
     res.json(['Login successful']);
   },
 
@@ -73,8 +74,10 @@ export const AuthController = {
       user_id: userId,
       type: 'register',
       otp,
-      expired_at: new Date(getTimes({ minutes: 5 })),
+      expired_at: new Date(getTimes({ minutes: 10 })),
     })
+
+    sendOtpRegister(email, otp, newName)
 
     res.status(201).json(user);
   }) as Handler,
@@ -86,4 +89,21 @@ export const AuthController = {
       name: (req as any).user.name
     });
   }) as Handler
+}
+
+async function sendOtpRegister(email: string, otp: string, name: string): Promise<void> 
+{
+  return axios
+    .create({
+      headers: {
+        'Authorization': `Bearer ${process.env.ADMIN_ACCESS_TOKEN}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    .post(`${process.env.ADMIN_API_URL}/auth/send-otp-register`, { email, otp, name })
+    .then(() => {})
+    .catch((err) => {
+      console.error('Error: ', err.message);
+    });
 }
