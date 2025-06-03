@@ -36,8 +36,11 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            export PATH=$PATH:$(npm bin -g)
+            nvm use 21 || nvm install 21
+            node -v
+            npm -v
             npm install -g pm2
             pm2 --version || { echo "PM2 installation failed"; exit 1; }
-            pm2 list | grep novaapp_api || { echo "Process novaapp_api does not exist"; exit 1; }
+            pm2 list | grep novaapp_api || pm2 start dist/server.js --name novaapp_api
             pm2 restart novaapp_api
+            pm2 save
