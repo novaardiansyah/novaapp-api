@@ -1,4 +1,4 @@
-import poolPromise from '@/db';
+import pool from '@/db';
 
 export interface Note {
   id: number;
@@ -11,7 +11,6 @@ export interface Note {
 
 export class NotesModel {
   static async all(): Promise<Note[]> {
-    const pool = await poolPromise()
     const [rows] = await pool.query('SELECT * FROM notes ORDER BY id DESC');
     return rows as Note[];
   }
