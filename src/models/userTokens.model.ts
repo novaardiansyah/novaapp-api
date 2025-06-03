@@ -36,4 +36,10 @@ export class UserTokensModel {
     const tokens = rows as UserToken[];
     return tokens.length ? tokens[0] : null;
   }
+
+  static async findByToken(token: string): Promise<UserToken | null> {
+    const [rows] = await pool.query('SELECT a.id, a.user_id, a.token, a.refresh_token, a.expires_at FROM user_tokens AS a WHERE a.token = ? LIMIT 1', [token]);
+    const tokens = rows as UserToken[];
+    return tokens.length ? tokens[0] : null;
+  }
 }
