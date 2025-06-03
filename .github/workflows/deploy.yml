@@ -38,5 +38,6 @@ jobs:
           script: |
             export PATH=$PATH:$(npm bin -g)
             npm install -g pm2
-            cd ${{ secrets.SERVER_PATH }}
+            pm2 --version || { echo "PM2 installation failed"; exit 1; }
+            pm2 list | grep novaapp_api || { echo "Process novaapp_api does not exist"; exit 1; }
             pm2 restart novaapp_api
