@@ -19,7 +19,7 @@ jobs:
         run: npm run build
 
       - name: Deploy dist/ via rsync over SSH
-        uses: burnett01/rsync-deployments@v6.0.0
+        uses: burnett01/rsync-deployments@7.0.2
         with:
           switches: -avz --delete
           path: dist/
