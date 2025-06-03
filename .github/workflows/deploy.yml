@@ -37,5 +37,6 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             export PATH=$PATH:$(npm bin -g)
+            npm install -g pm2
             cd ${{ secrets.SERVER_PATH }}
-            /root/.nvm/versions/node/v21.5.0/bin/pm2 restart novaapp_api
+            pm2 restart novaapp_api
