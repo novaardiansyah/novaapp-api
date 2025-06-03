@@ -21,7 +21,7 @@ jobs:
       - name: Deploy dist/ via rsync over SSH
         uses: burnett01/rsync-deployments@7.0.2
         with:
-          switches: -avz --delete
+          switches: -avz --delete -e "ssh -p ${{ secrets.SERVER_PORT }}"
           path: dist/
           remote_path: ${{ secrets.SERVER_PATH }}/dist
           remote_host: ${{ secrets.SERVER_HOST }}
