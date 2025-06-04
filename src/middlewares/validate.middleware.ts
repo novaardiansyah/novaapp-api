@@ -3,15 +3,26 @@ import type { ZodSchema, TypeOf } from "zod"
 
 export function validate<T extends ZodSchema<any>>(schema: T): RequestHandler {
   return (req, res, next): void => {
+    if (!req.body) {
+      res.status(400).json({ message: "You must provide a request body." })
+      return
+    }
+
     const result = schema.safeParse(req.body)
 
     if (!result.success) {
-      let errors = result.error.errors.map((err) => ({
-        [err.path.join(".")]: err.message,
-      }));
+      const errors: Record<string, string[]> = {}
+
+      for (const err of result.error.errors) {
+        const key = err.path.join(".")
+        if (!errors[key]) {
+          errors[key] = []
+        }
+        errors[key].push(err.message)
+      }
 
       res.status(422).json({
-        message: errors[0]?.[Object.keys(errors[0])[0]] || "Invalid request data",
+        message: Object.values(errors)[0]?.[0] || "Invalid request data",
         errors,
       })
 
