@@ -9,7 +9,4 @@ router.get('/', NoteController.index)
 router.get('/:id', NoteController.show)
 router.put('/:id', validate(updateSchema), NoteController.update)
 
-// Route::get('/{id}', [NoteController::class, 'show'])
-// Route::put('/{id}', [NoteController::class, 'update'])
-
 export default router
