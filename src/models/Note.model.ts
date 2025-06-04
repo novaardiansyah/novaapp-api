@@ -1,6 +1,5 @@
 import pool from '@/db';
 import { getTimes } from '@/helpers';
-import { date } from 'zod';
 
 const QUERY_DEBUG = process.env.QUERY_DEBUG === 'true'
 
