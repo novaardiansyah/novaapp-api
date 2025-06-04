@@ -2,7 +2,7 @@ name: Build and Deploy to Ubuntu Server
 
 on:
   push:
-    branches: [main]    # Ganti jika branch deploy kamu bukan main
+    branches: [main]
 
 jobs:
   build-and-deploy:
@@ -41,6 +41,6 @@ jobs:
             cd ${{ secrets.SERVER_PATH }}
             node -v
             npm -v
-            npm install -g pm2
+            which pm2 || npm install -g pm2
             pm2 restart novaapp_api --update-env || pm2 start dist/index.js --name novaapp_api --update-env
             pm2 save
