@@ -7,13 +7,26 @@ import axios from 'axios';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret-key';
 
+interface IspGeoResponse {
+  location?: {
+    country_name?: string;
+    country_flag?: string;
+    city?: string;
+    state_prov?: string;
+    district?: string;
+    zipcode?: string;
+    latitude?: string;
+    longitude?: string;
+  };
+}
+
 export const AuthController = {
   async index(req: Request, res: Response) {  
     res.json(['Login successful']);
   },
 
   login: (async(req: Request, res: Response) => {
-    const { email, password } = req.body || {}
+    const { email, password, ip } = req.body || {}
     
     const user = await UserModel.findByEmail(email)
     
@@ -31,20 +44,30 @@ export const AuthController = {
       { expiresIn: '1d' }
     )
 
+    let location = <IspGeoResponse['location']>{}
+
+    try {
+      const ispCheckUrl      = `${process.env.IPGEO_API_URL}?apiKey=${process.env.IPGEO_API_KEY}&ip=${ip}`
+      const checkIspLocation = await axios.get<IspGeoResponse>(ispCheckUrl)
+      location = checkIspLocation?.data?.location || {}
+    } catch (error) {
+      console.error('Error fetching ISP location')
+    }
+
     await UserTokenModel.create({
       user_id: user.id,
       token: token,
       refresh_token: refreshToken.hash,
       expires_at: new Date(expiresIn),
-      country: 'Indonesia',
-      state: 'DKI Jakarta',
-      city: 'Jakarta',
-      ip: req.ip,
-      device_model: req.headers['user-agent'] || 'Unknown',
-      os: 'Unknown',
-      os_version: 'Unknown',
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      language: req.headers['accept-language']?.split(',')[0] || 'en-US',
+      ip,
+      country: location?.country_name || null,
+      country_flag: location?.country_flag || null,
+      city: location?.city || null,
+      state: location?.state_prov || null,
+      district: location?.district || null,
+      zipcode: location?.zipcode || null,
+      latitude: location?.latitude || null,
+      longitude: location?.longitude || null,
     })
     
     res.json({
