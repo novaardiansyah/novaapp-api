@@ -1,11 +1,12 @@
 import pool from '@/db';
 import { getTimes } from '@/helpers';
+import { date } from 'zod';
 
 const QUERY_DEBUG = process.env.QUERY_DEBUG === 'true'
 
 export interface Note {
   id: number;
-  code: string;
+  code?: string;
   title: string;
   description: string;
   created_at?: Date;
@@ -51,6 +52,26 @@ export class NoteModel {
     data.updated_at = new Date(getTimes())
 
     const sql = pool.format('UPDATE notes SET ? WHERE id = ?', [data, id])
+    QUERY_DEBUG && console.log('SQL:', sql)
+
+    await pool.query(sql)
+  }
+
+  static async create(data: Omit<Note, 'id'>): Promise<void> {
+    data.created_at = new Date(getTimes())
+    data.updated_at = new Date(getTimes())
+    data.code = Math.random().toString(36).substring(2, 10)
+
+    const sql = pool.format('INSERT INTO notes SET ?', [data])
+    QUERY_DEBUG && console.log('SQL:', sql)
+
+    await pool.query(sql)
+  }
+
+  static async delete(id: number): Promise<void> {
+    if (isNaN(id) || id < 1) return
+
+    const sql = pool.format('DELETE FROM notes WHERE id = ?', [id])
     QUERY_DEBUG && console.log('SQL:', sql)
 
     await pool.query(sql)

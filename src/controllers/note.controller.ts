@@ -49,4 +49,22 @@ export const NoteController = {
 
     res.json({ message: 'Data updated successfully' })
   }) as Handler,
+
+  store: (async(req: Request, res: Response) => {
+    const { title, description } = req.body
+
+    await NoteModel.create({ title, description })
+
+    res.status(201).json({ message: 'Note created successfully' })
+  }) as Handler,
+
+  delete: (async(req: Request, res: Response) => {
+    const id = Number(req.params.id)
+    const note = await NoteModel.findById(id)
+
+    if (!note) return res.status(404).json({ error: 'Data not found' })
+    await NoteModel.delete(id)
+    
+    res.json({ message: 'Data deleted successfully' })
+  }) as Handler,
 }
