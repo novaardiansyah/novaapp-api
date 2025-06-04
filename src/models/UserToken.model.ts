@@ -9,17 +9,15 @@ export interface UserToken {
   token: string
   refresh_token: string
   expires_at: Date
-  country?: string
-  state?: string
-  city?: string
-  latitude?: string
-  longitude?: string
+  country?: string | null
+  country_flag?: string | null
+  city?: string | null
+  state?: string | null
+  district?: string | null
+  zipcode?: string | null
+  latitude?: string | null
+  longitude?: string | null
   ip?: string
-  device_model?: string
-  os?: string
-  os_version?: string
-  timezone?: string
-  language?: string
 }
 
 export class UserTokenModel {
@@ -32,16 +30,14 @@ export class UserTokenModel {
       refresh_token: data.refresh_token,
       expires_at: data.expires_at,
       country: data.country,
-      state: data.state,
+      country_flag: data.country_flag,
       city: data.city,
+      state: data.state,
+      district: data.district,
+      zipcode: data.zipcode,
       latitude: data.latitude,
       longitude: data.longitude,
       ip: data.ip,
-      device_model: data.device_model,
-      os: data.os,
-      os_version: data.os_version,
-      timezone: data.timezone,
-      language: data.language,
       created_at: now,
       updated_at: now,
     }
