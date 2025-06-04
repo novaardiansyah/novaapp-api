@@ -8,7 +8,7 @@ export const NoteController = {
     page     = Number(page)
     per_page = Number(per_page)
 
-    if (per_page < 1 || per_page > 100) page = 10
+    if (per_page < 1 || per_page > 100) per_page = 10
 
     const notes = await NoteModel.paginate({ page, per_page, })
     const total = await NoteModel.total();
