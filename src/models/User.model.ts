@@ -12,7 +12,7 @@ export interface User {
 
 const selectOnly = ['a.id', 'a.name', 'a.email', 'a.password', 'a.email_verified_at', 'a.created_at', 'a.updated_at'] as const;
 
-export class UsersModel {
+export class UserModel {
   static async findByEmail(email: string): Promise<User | null> {
     const [rows] = await pool.query(
       `SELECT ${selectOnly.join(', ')} FROM users AS a WHERE a.email = ? LIMIT 1`,

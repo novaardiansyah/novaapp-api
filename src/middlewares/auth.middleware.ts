@@ -1,4 +1,4 @@
-import { UserTokensModel } from '@/models'
+import { UserTokenModel } from '@/models'
 import { Handler } from 'express'
 import jwt from 'jsonwebtoken'
 
@@ -28,7 +28,7 @@ export const auth: Handler = async (req, res, next) => {
 
     const { userId } = payload
     
-    const userToken = await UserTokensModel.findByToken(token)
+    const userToken = await UserTokenModel.findByToken(token)
 
     if (!userToken || userToken.user_id !== userId) {
       throw new Error('Token does not match user token')

@@ -1,5 +1,5 @@
-import { UsersModel } from '@/models/users.model'
-import { UserTokensModel } from '@/models/userTokens.model'
-import { UserOtpsModel } from '@/models/userOtps.model'
+import { UserModel } from '@/models/User.model'
+import { UserTokenModel } from '@/models/UserToken.model'
+import { UserOtpModel } from '@/models/UserOtp.model'
 
-export { UsersModel, UserTokensModel, UserOtpsModel }
+export { UserModel, UserTokenModel, UserOtpModel }

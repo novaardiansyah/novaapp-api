@@ -9,7 +9,7 @@ export interface UserOtp {
   expired_at: Date;
 }
 
-export class UserOtpsModel {
+export class UserOtpModel {
   static async create(data: Omit<UserOtp, 'id'>): Promise<number> {
     const now = getTimes()
     const [result]: any = await pool.query(
