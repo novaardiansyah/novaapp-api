@@ -1,5 +1,5 @@
 import { Request, Response, Handler } from 'express'
-import { UsersModel, UserTokensModel, UserOtpsModel } from '@/models'
+import { UserModel, UserTokenModel, UserOtpModel } from '@/models'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { generateRefreshToken, getTimes } from '@/helpers';
@@ -15,7 +15,7 @@ export const AuthController = {
   login: (async(req: Request, res: Response) => {
     const { email, password } = req.body || {}
     
-    const user = await UsersModel.findByEmail(email)
+    const user = await UserModel.findByEmail(email)
     
     if (!user) return res.status(401).json({ message: 'Invalid credentials' })
 
@@ -31,7 +31,7 @@ export const AuthController = {
       { expiresIn: '1d' }
     )
 
-    await UserTokensModel.create({
+    await UserTokenModel.create({
       user_id: user.id,
       token: token,
       refresh_token: refreshToken.hash,
@@ -62,16 +62,16 @@ export const AuthController = {
     if (!name) 
       newName = email.split('@')[0];
     
-    const existing = await UsersModel.findByEmail(email);
+    const existing = await UserModel.findByEmail(email);
     if (existing) return res.status(409).json({ message: 'Email telah terdaftar sebelumnya.' })
     
     const hash = await bcrypt.hash(password, 10);
-    const userId = await UsersModel.create({ email, password: hash, name: newName });
-    const user = await UsersModel.findById(userId);
+    const userId = await UserModel.create({ email, password: hash, name: newName });
+    const user = await UserModel.findById(userId);
 
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
-    await UserOtpsModel.create({
+    await UserOtpModel.create({
       user_id: userId,
       type: 'register',
       otp,
@@ -85,13 +85,22 @@ export const AuthController = {
 
   me: (async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
-    const user = await UsersModel.findById(userId);
+    const user = await UserModel.findById(userId);
 
     if (!user) return res.status(404).json({ message: 'User not found' });
     
     const { password, ...rest } = user;
     res.json(rest);
-  }) as Handler
+  }) as Handler,
+
+  logout: (async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const token = req.headers['authorization']?.split(' ')[1] || '-1';
+    
+    await UserTokenModel.deleteByUserIdAndToken(userId, token)
+
+    res.json({ message: 'Logout successful' })
+  }) as Handler,
 }
 
 async function sendOtpRegister(email: string, otp: string, name: string): Promise<void> 

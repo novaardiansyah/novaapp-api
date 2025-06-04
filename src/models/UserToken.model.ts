@@ -20,8 +20,7 @@ export interface UserToken {
   language?: string;
 }
 
-
-export class UserTokensModel {
+export class UserTokenModel {
   static async create(data: Omit<UserToken, 'id'>): Promise<number> {
     const now = getTimes()
     const [result]: any = await pool.query(
@@ -41,5 +40,9 @@ export class UserTokensModel {
     const [rows] = await pool.query('SELECT a.id, a.user_id, a.token, a.refresh_token, a.expires_at FROM user_tokens AS a WHERE a.token = ? LIMIT 1', [token]);
     const tokens = rows as UserToken[];
     return tokens.length ? tokens[0] : null;
+  }
+
+  static async deleteByUserIdAndToken(user_id: number, token: string): Promise<void> {
+    await pool.query('DELETE FROM user_tokens WHERE user_id = ? AND token = ?', [user_id, token]);
   }
 }

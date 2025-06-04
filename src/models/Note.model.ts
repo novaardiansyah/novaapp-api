@@ -9,7 +9,7 @@ export interface Note {
   updated_at?: Date;
 }
 
-export class NotesModel {
+export class NoteModel {
   static async all(): Promise<Note[]> {
     const [rows] = await pool.query('SELECT * FROM notes ORDER BY id DESC');
     return rows as Note[];
