@@ -1,5 +1,5 @@
 import { UserTokenModel } from '@/models'
-import { Handler } from 'express'
+import { RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret-key'
@@ -12,34 +12,47 @@ export interface JwtPayload {
   exp: number
 }
 
-export const auth: Handler = async (req, res, next) => {
-  const authHeader = req.headers.authorization
+interface AuthParams {
+  onRefresh?: boolean
+}
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    res.status(401).json({ message: 'Missing or invalid token' })
-    return
-  }
+export function auth(params: AuthParams): RequestHandler {
+  return async (req, res, next): Promise<void> => {
+    const authHeader = req.headers.authorization
 
-  const token = authHeader.split(' ')[1]
-  
-  try {
-    const payload = jwt.verify(token, JWT_SECRET) as JwtPayload
-    (req as any).user = payload
-
-    const { userId } = payload
-    
-    const userToken = await UserTokenModel.findByToken(token)
-
-    if (!userToken || userToken.user_id !== userId) {
-      throw new Error('Token does not match user token')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({ message: 'Missing or invalid token' })
+      return
     }
 
-    if (new Date(userToken.expires_at) < new Date()) {
-      throw new Error('Token has expired')
-    }
+    const token = authHeader.split(' ')[1]
 
-    next()
-  } catch (err) {
-    res.status(401).json({ message: err instanceof Error ? err.message : 'Unauthorized' })
+    try {
+      let payload: JwtPayload
+
+      if (params.onRefresh) {
+        payload = jwt.verify(token, JWT_SECRET, { ignoreExpiration: true }) as JwtPayload
+      } else {
+        payload = jwt.verify(token, JWT_SECRET) as JwtPayload
+      }
+
+      const { userId } = payload
+      const userToken = await UserTokenModel.findByToken(token)
+      
+      if (!userToken || userToken.user_id !== userId) {
+        throw new Error('Token does not match user token')
+      }
+
+      if (!params.onRefresh && new Date(userToken.expires_at) < new Date()) {
+        throw new Error('Token has expired')
+      }
+
+
+      (req as any).user = { ...payload, token_id: userToken.id }
+
+      next()
+    } catch (err) {
+      res.status(401).json({ message: err instanceof Error ? err.message : 'Unauthorized' })
+    }
   }
 }

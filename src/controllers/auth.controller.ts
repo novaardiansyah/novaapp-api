@@ -26,8 +26,9 @@ export const AuthController = {
   },
 
   login: (async(req: Request, res: Response) => {
-    const { email, password, ip } = req.body || {}
-    
+    const { email, password } = req.body || {}
+    const ip = req.ip
+
     const user = await UserModel.findByEmail(email)
     
     if (!user) return res.status(401).json({ message: 'Invalid credentials' })
@@ -47,7 +48,7 @@ export const AuthController = {
     let location = <IspGeoResponse['location']>{}
 
     try {
-      const ispCheckUrl      = `${process.env.IPGEO_API_URL}?apiKey=${process.env.IPGEO_API_KEY}&ip=${ip}`
+      const ispCheckUrl      = `${process.env.IPGEO_API_URL}?apiKey=${process.env.IPGEO_API_KEY}&ip=${ip}&fields=location`
       const checkIspLocation = await axios.get<IspGeoResponse>(ispCheckUrl)
       location = checkIspLocation?.data?.location || {}
     } catch (error) {
@@ -123,6 +124,41 @@ export const AuthController = {
     await UserTokenModel.deleteByUserIdAndToken(userId, token)
 
     res.json({ message: 'Logout successful' })
+  }) as Handler,
+
+  refreshToken: (async (req: Request, res: Response) => {
+    const { refresh_token } = req.body
+    const { userId, email, name, token_id } = (req as any).user;
+
+    const userToken = await UserTokenModel.findByIdAndUserId(token_id, userId);
+
+    if (!userToken) {
+      return res.status(401).json({ message: 'Invalid refresh token (001)' });
+    }
+
+    const isValid = await bcrypt.compare(refresh_token, userToken.refresh_token);
+
+    if (!isValid) {
+      return res.status(401).json({ message: 'Invalid refresh token (002)' });
+    }
+
+    const expiresIn = getTimes({ day: 1 })
+
+    const newToken = jwt.sign(
+      { userId: userId, email: email, name: name },
+      JWT_SECRET,
+      { expiresIn: '1d' }
+    )
+
+    await UserTokenModel.updateById(token_id, {
+      token: newToken,
+      expires_at: new Date(expiresIn),
+    })
+
+    res.json({
+      access_token: newToken,
+      expires_at: expiresIn,
+    })
   }) as Handler,
 }
 

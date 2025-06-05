@@ -18,6 +18,7 @@ export interface UserToken {
   latitude?: string | null
   longitude?: string | null
   ip?: string
+  updated_at?: Date
 }
 
 export class UserTokenModel {
@@ -64,6 +65,25 @@ export class UserTokenModel {
   static async deleteByUserIdAndToken(user_id: number, token: string): Promise<void> {
     const sql = pool.format('UPDATE user_tokens SET deleted_at = ? WHERE user_id = ? AND token = ?', [getTimes(), user_id, token])
     QUERY_DEBUG && console.log('SQL:', sql)
+    await pool.query(sql)
+  }
+
+  static async findByIdAndUserId(id: number, user_id: number): Promise<UserToken | null> {
+    const sql = pool.format('SELECT a.id, a.user_id, a.token, a.refresh_token, a.expires_at FROM user_tokens AS a WHERE a.id = ? AND a.user_id = ? AND a.deleted_at IS NULL LIMIT 1', [id, user_id])
+    QUERY_DEBUG && console.log('SQL:', sql)
+
+    const [rows] = await pool.query(sql)
+    const tokens = rows as UserToken[]
+
+    return tokens.length ? tokens[0] : null
+  }
+
+  static async updateById(id: number, data: Partial<UserToken>): Promise<void> {
+    data.updated_at = new Date(getTimes())
+
+    const sql = pool.format(`UPDATE user_tokens SET ? WHERE id = ?`, [data, id])
+    QUERY_DEBUG && console.log('SQL:', sql)
+
     await pool.query(sql)
   }
 }
