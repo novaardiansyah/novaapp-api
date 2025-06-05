@@ -1,5 +1,5 @@
 import { UserTokenModel } from '@/models'
-import { Handler, RequestHandler } from 'express'
+import { RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret-key'
