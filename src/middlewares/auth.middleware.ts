@@ -13,7 +13,8 @@ export interface JwtPayload {
 }
 
 interface AuthParams {
-  onRefresh?: boolean
+  onRefresh?: boolean,
+  onLogout?: boolean
 }
 
 export function auth(params: AuthParams): RequestHandler {
@@ -30,7 +31,7 @@ export function auth(params: AuthParams): RequestHandler {
     try {
       let payload: JwtPayload
 
-      if (params.onRefresh) {
+      if (params.onRefresh || params.onLogout) {
         payload = jwt.verify(token, JWT_SECRET, { ignoreExpiration: true }) as JwtPayload
       } else {
         payload = jwt.verify(token, JWT_SECRET) as JwtPayload
@@ -43,10 +44,9 @@ export function auth(params: AuthParams): RequestHandler {
         throw new Error('Token does not match user token')
       }
 
-      if (!params.onRefresh && new Date(userToken.expires_at) < new Date()) {
+      if (!(params.onRefresh || params.onLogout) && new Date(userToken.expires_at) < new Date()) {
         throw new Error('Token has expired')
       }
-
 
       (req as any).user = { ...payload, token_id: userToken.id }
 

@@ -9,6 +9,7 @@ export interface UserToken {
   token: string
   refresh_token: string
   expires_at: Date
+  refresh_token_expires_at: Date,
   country?: string | null
   country_flag?: string | null
   city?: string | null
@@ -30,6 +31,7 @@ export class UserTokenModel {
       token: data.token,
       refresh_token: data.refresh_token,
       expires_at: data.expires_at,
+      refresh_token_expires_at: data.refresh_token_expires_at,
       country: data.country,
       country_flag: data.country_flag,
       city: data.city,
@@ -53,7 +55,7 @@ export class UserTokenModel {
   }
 
   static async findByToken(token: string): Promise<UserToken | null> {
-    const sql = pool.format('SELECT a.id, a.user_id, a.token, a.refresh_token, a.expires_at FROM user_tokens AS a WHERE a.token = ? AND a.deleted_at IS NULL LIMIT 1', [token])
+    const sql = pool.format('SELECT a.id, a.user_id, a.token, a.refresh_token, a.expires_at, a.refresh_token_expires_at FROM user_tokens AS a WHERE a.token = ? AND a.deleted_at IS NULL LIMIT 1', [token])
     QUERY_DEBUG && console.log('SQL:', sql)
 
     const [rows] = await pool.query(sql)
@@ -69,7 +71,7 @@ export class UserTokenModel {
   }
 
   static async findByIdAndUserId(id: number, user_id: number): Promise<UserToken | null> {
-    const sql = pool.format('SELECT a.id, a.user_id, a.token, a.refresh_token, a.expires_at FROM user_tokens AS a WHERE a.id = ? AND a.user_id = ? AND a.deleted_at IS NULL LIMIT 1', [id, user_id])
+    const sql = pool.format('SELECT a.id, a.user_id, a.token, a.refresh_token, a.expires_at, a.refresh_token_expires_at FROM user_tokens AS a WHERE a.id = ? AND a.user_id = ? AND a.deleted_at IS NULL LIMIT 1', [id, user_id])
     QUERY_DEBUG && console.log('SQL:', sql)
 
     const [rows] = await pool.query(sql)
