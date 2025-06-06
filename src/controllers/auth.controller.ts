@@ -47,11 +47,14 @@ export const AuthController = {
       console.error('Error fetching ISP location')
     }
 
+    const refreshTokenExpiresAt = getTimes({ days: 7 })
+
     await UserTokenModel.create({
       user_id: user.id,
       token: access_token,
       refresh_token: refreshToken.hash,
       expires_at: new Date(expires_in),
+      refresh_token_expires_at: new Date(refreshTokenExpiresAt),
       ip,
       country: location?.country_name || null,
       country_flag: location?.country_flag || null,
@@ -132,6 +135,10 @@ export const AuthController = {
 
     if (!isValid) {
       return res.status(401).json({ message: 'Invalid refresh token (002)' });
+    }
+
+    if (new Date(userToken.refresh_token_expires_at) < new Date()) {
+      return res.status(401).json({ message: 'Refresh token has expired' });
     }
 
     const { access_token, expires_in } = await generateJwtToken({ userId, email, name })
