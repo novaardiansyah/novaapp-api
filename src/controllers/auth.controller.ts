@@ -1,8 +1,7 @@
 import { Request, Response, Handler } from 'express'
 import { UserModel, UserTokenModel, UserOtpModel } from '@/models'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import { generateRefreshToken, genereteJwtToken, getTimes } from '@/helpers';
+import { generateRefreshToken, generateJwtToken, getTimes } from '@/helpers';
 import axios from 'axios';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret-key';
@@ -36,7 +35,7 @@ export const AuthController = {
     if (!valid) return res.status(401).json({ message: 'Invalid credentials' })
 
     const refreshToken = await generateRefreshToken()
-    const { access_token, expires_in } = await genereteJwtToken({ userId: user.id, email, name: user.name })
+    const { access_token, expires_in } = await generateJwtToken({ userId: user.id, email, name: user.name })
 
     let location = <IspGeoResponse['location']>{}
 
@@ -135,7 +134,7 @@ export const AuthController = {
       return res.status(401).json({ message: 'Invalid refresh token (002)' });
     }
 
-    const { access_token, expires_in } = await genereteJwtToken({ userId, email, name })
+    const { access_token, expires_in } = await generateJwtToken({ userId, email, name })
 
     await UserTokenModel.updateById(token_id, {
       token: access_token,
