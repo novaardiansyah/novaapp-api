@@ -32,7 +32,7 @@ interface generateJwtTokenResponse {
   expires_in: string;
 }
 
-export async function genereteJwtToken(params: generateJwtTokenParams): Promise<generateJwtTokenResponse> 
+export async function generateJwtToken(params: generateJwtTokenParams): Promise<generateJwtTokenResponse> 
 {
   const { userId, email, name } = params
 
