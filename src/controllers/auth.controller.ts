@@ -2,7 +2,7 @@ import { Request, Response, Handler } from 'express'
 import { UserModel, UserTokenModel, UserOtpModel } from '@/models'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { generateRefreshToken, getTimes } from '@/helpers';
+import { generateRefreshToken, genereteJwtToken, getTimes } from '@/helpers';
 import axios from 'axios';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret-key';
@@ -35,14 +35,8 @@ export const AuthController = {
     const valid = await bcrypt.compare(password, user.password)
     if (!valid) return res.status(401).json({ message: 'Invalid credentials' })
 
-    const expiresIn = getTimes({ day: 1 })
     const refreshToken = await generateRefreshToken()
-
-    const token = jwt.sign(
-      { userId: user.id, email: user.email, name: user.name },
-      JWT_SECRET,
-      { expiresIn: '1d' }
-    )
+    const { access_token, expires_in } = await genereteJwtToken({ userId: user.id, email, name: user.name })
 
     let location = <IspGeoResponse['location']>{}
 
@@ -56,9 +50,9 @@ export const AuthController = {
 
     await UserTokenModel.create({
       user_id: user.id,
-      token: token,
+      token: access_token,
       refresh_token: refreshToken.hash,
-      expires_at: new Date(expiresIn),
+      expires_at: new Date(expires_in),
       ip,
       country: location?.country_name || null,
       country_flag: location?.country_flag || null,
@@ -71,9 +65,9 @@ export const AuthController = {
     })
     
     res.json({
-      access_token: token,
+      access_token,
       refresh_token: refreshToken.plain,
-      expires_at: expiresIn,
+      expires_at: expires_in,
     })
   }) as Handler,
 
@@ -141,22 +135,16 @@ export const AuthController = {
       return res.status(401).json({ message: 'Invalid refresh token (002)' });
     }
 
-    const expiresIn = getTimes({ day: 1 })
-
-    const newToken = jwt.sign(
-      { userId: userId, email: email, name: name },
-      JWT_SECRET,
-      { expiresIn: '1d' }
-    )
+    const { access_token, expires_in } = await genereteJwtToken({ userId, email, name })
 
     await UserTokenModel.updateById(token_id, {
-      token: newToken,
-      expires_at: new Date(expiresIn),
+      token: access_token,
+      expires_at: new Date(expires_in),
     })
 
     res.json({
-      access_token: newToken,
-      expires_at: expiresIn,
+      access_token,
+      expires_at: expires_in,
     })
   }) as Handler,
 }
