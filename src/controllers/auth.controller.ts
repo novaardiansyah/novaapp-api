@@ -26,8 +26,7 @@ export const AuthController = {
   },
 
   login: (async(req: Request, res: Response) => {
-    const { email, password } = req.body || {}
-    const ip = req.ip
+    const { email, password, ip } = req.body || {}
 
     const user = await UserModel.findByEmail(email)
     
