@@ -3,15 +3,16 @@ import { NoteModel } from '@/models/Note.model'
 
 export const NoteController = {
   index: (async(req: Request, res: Response) => {
-    let { page = 1, per_page = 10 } = req.query
+    let { page = 1, per_page = 10, search } = req.query
+    search = search ? String(search) : ''
 
     page     = Number(page)
     per_page = Number(per_page)
 
     if (per_page < 1 || per_page > 100) per_page = 10
 
-    const notes = await NoteModel.paginate({ page, per_page, })
-    const total = await NoteModel.total()
+    const notes = await NoteModel.paginate({ page, per_page, search })
+    const total = notes.total
     
     let next_page: number | null = page + 1
     const total_pages = Math.ceil(total / per_page)
@@ -23,7 +24,7 @@ export const NoteController = {
       next_page,
       per_page: per_page,
       total,
-      data: notes,
+      data: notes.data,
     })
 
   }) as Handler,

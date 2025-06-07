@@ -12,25 +12,46 @@ export interface Note {
   updated_at?: Date;
 }
 
+interface PaginateParams {
+  page: number;
+  per_page: number;
+  search?: string;
+}
+
 export class NoteModel {
   static async all(): Promise<Note[]> {
     const [rows] = await pool.query('SELECT * FROM notes ORDER BY id DESC');
     return rows as Note[];
   }
 
-  static async paginate({ page = 1, per_page = 10 }: { page?: number; per_page?: number }): Promise<Note[]> {
-    const offset = (page - 1) * per_page;
-    const sql    = pool.format('SELECT * FROM notes ORDER BY updated_at DESC LIMIT ? OFFSET ?', [per_page, offset]);
-    QUERY_DEBUG && console.log('SQL:', sql)
+  static async paginate(params: PaginateParams): Promise<{ data: Note[]; total: number }> {
+    const offset = (params.page - 1) * params.per_page;
+    const values: any[] = [];
+    let where = '';
+    
+    if (params.search) {
+      where = 'WHERE LOWER(title) LIKE LOWER(?) OR LOWER(description) LIKE LOWER(?)';
+      values.push(`%${params.search}%`, `%${params.search}%`);
+    }
 
-    const [rows] = await pool.query(sql);
-    return rows as Note[];
-  }
+    // ! 1. Get total count
+    const countSql = `SELECT COUNT(*) as total FROM notes ${where}`;
+    const [countRows] = await pool.query(countSql, values) as [Array<{ total: number }>, any];
+    const total = countRows[0].total;
 
-  static async total(): Promise<number> {
-    const [rows] = await pool.query('SELECT COUNT(*) AS total FROM notes');
-    const total = (rows as any[])[0].total;
-    return total;
+    // ! 2. Get paginated data
+    const dataSql = `
+      SELECT id, title, description, updated_at
+      FROM notes
+      ${where}
+      ORDER BY updated_at DESC
+      LIMIT ?
+      OFFSET ?
+    `;
+    const dataValues = [...values, params.per_page, offset];
+    const [rows] = await pool.query(dataSql, dataValues);
+
+    return { data: rows as Note[], total };
   }
 
   static async findById(id: number): Promise<Note | null> {
