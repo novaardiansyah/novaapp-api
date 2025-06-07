@@ -17,7 +17,7 @@ interface AuthParams {
   onLogout?: boolean
 }
 
-export function auth(params: AuthParams): RequestHandler {
+export function auth(params: AuthParams = {}): RequestHandler {
   return async (req, res, next): Promise<void> => {
     const authHeader = req.headers.authorization
 
