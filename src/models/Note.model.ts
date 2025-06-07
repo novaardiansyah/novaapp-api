@@ -35,21 +35,22 @@ export class NoteModel {
     }
 
     // ! 1. Get total count
-    const countSql = `SELECT COUNT(*) as total FROM notes ${where}`;
-    const [countRows] = await pool.query(countSql, values) as [Array<{ total: number }>, any];
+    const countSql = pool.format(`SELECT COUNT(*) as total FROM notes ${where}`, values);
+    const [countRows] = await pool.query(countSql) as [Array<{ total: number }>, any];
     const total = countRows[0].total;
 
     // ! 2. Get paginated data
-    const dataSql = `
+    const dataSql = pool.format(`
       SELECT id, title, description, updated_at
       FROM notes
       ${where}
       ORDER BY updated_at DESC
       LIMIT ?
       OFFSET ?
-    `;
-    const dataValues = [...values, params.per_page, offset];
-    const [rows] = await pool.query(dataSql, dataValues);
+    `, [...values, params.per_page, offset]);
+    const [rows] = await pool.query(dataSql);
+    
+    QUERY_DEBUG && console.log('SQL:', dataSql);
 
     return { data: rows as Note[], total };
   }
