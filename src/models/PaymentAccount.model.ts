@@ -24,8 +24,8 @@ export class PaymentAccountModel {
     let where = ''
     
     if (params.search) {
-      where = 'WHERE LOWER(title) LIKE LOWER(?) OR LOWER(description) LIKE LOWER(?)'
-      values.push(`%${params.search}%`, `%${params.search}%`)
+      where = 'WHERE LOWER(name) LIKE LOWER(?)'
+      values.push(`%${params.search}%`)
     }
 
     // ! 1. Get total count
