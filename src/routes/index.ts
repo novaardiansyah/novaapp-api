@@ -1,4 +1,5 @@
-import notesRouter from '@/routes/notes.route'
+import NoteRouter from '@/routes/notes.route'
 import AuthRouter from '@/routes/auth.route'
+import PaymentAccountRouter from '@/routes/paymentAccount.route'
 
-export { notesRouter, AuthRouter }
+export { NoteRouter, AuthRouter, PaymentAccountRouter }
