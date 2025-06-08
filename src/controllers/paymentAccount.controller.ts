@@ -9,6 +9,7 @@ export const PaymentAccount = {
     page     = Number(page)
     per_page = Number(per_page)
 
+    if (page < 1) page = 1
     if (per_page < 1 || per_page > 100) per_page = 10
 
     const notes = await PaymentAccountModel.paginate({ page, per_page, search })
