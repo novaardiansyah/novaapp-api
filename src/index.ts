@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import pool from '@/db';
-import { AuthRouter, notesRouter } from './routes';
+import { AuthRouter, NoteRouter, PaymentAccountRouter } from './routes';
 
 dotenv.config();
 
@@ -16,7 +16,8 @@ app.get('/', async (req: Request, res: Response) => {
 })
 
 app.use('/api/auth', AuthRouter);
-app.use('/api/notes', notesRouter);
+app.use('/api/notes', NoteRouter);
+app.use('/api/payment-accounts', PaymentAccountRouter);
 
 app.get('/api/ping', async (req: Request, res: Response) => {
   console.log('Ping received');
