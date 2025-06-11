@@ -1,4 +1,4 @@
-import NoteRouter from '@/routes/notes.route'
+import NoteRouter from '@/routes/note.route'
 import AuthRouter from '@/routes/auth.route'
 import PaymentAccountRouter from '@/routes/paymentAccount.route'
 

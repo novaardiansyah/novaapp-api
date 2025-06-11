@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { NoteController } from '@/controllers/note.controller'
 import { auth, validate } from '@/middlewares'
-import { updateSchema, createSchema } from '@/schemas/notes'
+import { updateSchema, createSchema } from '@/schemas/note'
 
 const router = Router()
 

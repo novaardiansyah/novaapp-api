@@ -29,4 +29,12 @@ export const PaymentAccount = {
     })
 
   }) as Handler,
+
+  store: (async(req: Request, res: Response) => {
+    const { name, deposit } = req.body
+
+    await PaymentAccountModel.create({ name, deposit })
+
+    res.status(201).json({ message: 'Akun kas berhasil disimpan' })
+  }) as Handler,
 }
